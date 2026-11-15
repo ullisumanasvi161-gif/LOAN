@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabKit Central – Laboratory Equipment Loan Management System</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">🔬</div>
+      <div class="logo-text">
+        <h1>LabKit Central</h1>
+        <p>Laboratory Equipment Loan Management System</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <div id="api-status-pill" class="status-pill">
+        <span class="dot"></span>
+        <span id="api-status-text">Connecting to API (Port 3000)...</span>
+      </div>
+      <button id="btn-refresh" class="btn btn-secondary btn-sm" title="Refresh all records">
+        ↻ Refresh
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="microscopes">Microscopes Catalog</button>
+      <button class="tab-btn" data-tab="researchers">Researchers Directory</button>
+      <button class="tab-btn" data-tab="loans">Loans Management</button>
+      <button class="tab-btn" data-tab="join-details">SQL JOIN Details (Sec 6.D)</button>
+      <button class="tab-btn" data-tab="workflow">Loan Status Workflow (Sec 7)</button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab-overview" class="tab-content">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Total Microscopes</div>
+          <div id="metric-microscopes" class="metric-value">--</div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-title">Available for Loan</div>
+          <div id="metric-available" class="metric-value">--</div>
+        </div>
+        <div class="metric-card amber">
+          <div class="metric-title">Active Loans</div>
+          <div id="metric-loans" class="metric-value">--</div>
+        </div>
+        <div class="metric-card indigo">
+          <div class="metric-title">Researchers</div>
+          <div id="metric-researchers" class="metric-value">--</div>
+        </div>
+      </div>
+
+      <div class="workflow-section">
+        <div class="workflow-header">
+          <h3>⚡ Welcome API (Module 1)</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+            Response received from <code>GET /</code>:
+          </p>
+        </div>
+        <div id="welcome-response" class="console-box">Loading welcome endpoint...</div>
+      </div>
+
+      <div class="table-card">
+        <div style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="font-size: 1.05rem;">Quick Overview: Recent Loans</h3>
+          <button class="btn btn-primary btn-sm" onclick="switchTab('loans')">View All Loans →</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Researcher ID</th>
+              <th>Microscope ID</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="overview-loans-body">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading loans...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: MICROSCOPES -->
+    <section id="tab-microscopes" class="tab-content" style="display: none;">
+      <div class="toolbar">
+        <div class="filter-group">
+          <input type="text" id="filter-microscope-search" class="input-search" placeholder="Search by name/brand..." />
+          <select id="filter-microscope-type" class="select-filter">
+            <option value="">All Types</option>
+            <option value="compound">Compound</option>
+            <option value="electron">Electron</option>
+            <option value="confocal">Confocal</option>
+            <option value="inverted">Inverted</option>
+            <option value="stereo">Stereo</option>
+            <option value="fluorescence">Fluorescence</option>
+          </select>
+          <select id="filter-microscope-status" class="select-filter">
+            <option value="">All Statuses</option>
+            <option value="available">Available</option>
+            <option value="borrowed">Borrowed</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+          <button id="btn-apply-microscope-filters" class="btn btn-secondary btn-sm">Filter</button>
+          <button id="btn-reset-microscope-filters" class="btn btn-secondary btn-sm">Reset</button>
+        </div>
+        <button id="btn-open-create-microscope" class="btn btn-primary">
+          + Add Microscope
+        </button>
+      </div>
+
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Designation / Name</th>
+              <th>Type</th>
+              <th>Brand</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="microscopes-table-body">
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading microscopes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: RESEARCHERS -->
+    <section id="tab-researchers" class="tab-content" style="display: none;">
+      <div class="toolbar">
+        <div style="font-size: 0.9rem; color: var(--text-muted);">
+          Registered faculty, research fellows, and laboratory personnel.
+        </div>
+        <button id="btn-open-create-researcher" class="btn btn-primary">
+          + Add Researcher
+        </button>
+      </div>
+
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="researchers-table-body">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading researchers...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: LOANS MANAGEMENT -->
+    <section id="tab-loans" class="tab-content" style="display: none;">
+      <div class="toolbar">
+        <div style="font-size: 0.9rem; color: var(--text-muted);">
+          Equipment loans. Status automatically starts as <code>pending</code>.
+        </div>
+        <button id="btn-open-create-loan" class="btn btn-primary">
+          + Borrow Microscope (Create Loan)
+        </button>
+      </div>
+
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Loan ID</th>
+              <th>Researcher ID</th>
+              <th>Microscope ID</th>
+              <th>Loan Date</th>
+              <th>Status</th>
+              <th>Workflow Action</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="loans-table-body">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading loans...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 5: SQL JOIN DETAILS -->
+    <section id="tab-join-details" class="tab-content" style="display: none;">
+      <div class="workflow-section">
+        <div class="workflow-header">
+          <h3>🔗 SQL INNER JOIN Combined View (Section 6.D)</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+            Fetched directly from <code>GET /loans/details</code>. Combines <strong>Loans</strong>, <strong>Researchers</strong>, and <strong>Microscopes</strong> into human-readable data rows rather than raw numeric foreign keys.
+          </p>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Loan ID</th>
+                <th>Researcher Name</th>
+                <th>Researcher Email</th>
+                <th>Microscope Name</th>
+                <th>Microscope Type</th>
+                <th>Loan Date</th>
+                <th>Loan Status</th>
+              </tr>
+            </thead>
+            <tbody id="join-details-table-body">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading relational JOIN records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: WORKFLOW SIMULATOR -->
+    <section id="tab-workflow" class="tab-content" style="display: none;">
+      <div class="workflow-section">
+        <div class="workflow-header">
+          <h3>⚡ Section 7: Loan Status Workflow State Machine</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+            Enforces the strict backend one-step forward rule: <code>pending</code> → <code>approved</code> → <code>done</code>.
+            Backward and skipping transitions are strictly rejected by the server with <strong>HTTP 400 Bad Request</strong>.
+          </p>
+        </div>
+
+        <div style="background-color: var(--bg-primary); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">Select Loan to Test Workflow:</label>
+          <select id="workflow-loan-select" class="form-control" style="margin-top: 0.5rem; max-width: 450px;">
+            <option value="">Select a loan...</option>
+          </select>
+        </div>
+
+        <!-- Visual Stepper -->
+        <div class="stepper" id="workflow-stepper">
+          <div class="step-item" id="step-pending">
+            <div class="step-circle">1</div>
+            <div class="step-title">pending</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Initial checkout</div>
+          </div>
+          <div class="step-item" id="step-approved">
+            <div class="step-circle">2</div>
+            <div class="step-title">approved</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Scope marked borrowed</div>
+          </div>
+          <div class="step-item" id="step-done">
+            <div class="step-circle">3</div>
+            <div class="step-title">done</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Scope released available</div>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
+          <button id="btn-workflow-approve" class="btn btn-primary">
+            ✓ Approve Loan (pending → approved)
+          </button>
+          <button id="btn-workflow-done" class="btn btn-success">
+            ✓ Complete Loan (approved → done)
+          </button>
+          <button id="btn-workflow-invalid" class="btn btn-danger">
+            ✗ Test Invalid Transition (triggers HTTP 400)
+          </button>
+        </div>
+
+        <!-- Live Response Inspector -->
+        <div style="margin-top: 1.75rem;">
+          <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Live Server Response Inspector (<code>PATCH /loans/:id/status</code>):
+          </h4>
+          <div id="workflow-response-console" class="console-box">Select a loan and click an action button to inspect HTTP response payload and status codes.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL: CREATE / EDIT RESEARCHER -->
+  <div id="modal-researcher" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-researcher-title">Add Researcher</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-researcher')">✕</button>
+      </div>
+      <form id="form-researcher">
+        <input type="hidden" id="researcher-edit-id" />
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="researcher-name" class="form-control" placeholder="Dr. Jane Smith" required />
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" id="researcher-email" class="form-control" placeholder="jane.smith@labkit.org" required />
+        </div>
+        <div class="form-group">
+          <label>Department *</label>
+          <input type="text" id="researcher-dept" class="form-control" placeholder="Cellular Biology" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-researcher')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Researcher</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE / EDIT MICROSCOPE -->
+  <div id="modal-microscope" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-microscope-title">Add Microscope</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-microscope')">✕</button>
+      </div>
+      <form id="form-microscope">
+        <input type="hidden" id="microscope-edit-id" />
+        <div class="form-group">
+          <label>Microscope Designation / Model *</label>
+          <input type="text" id="microscope-name" class="form-control" placeholder="Olympus BX53" required />
+        </div>
+        <div class="form-group">
+          <label>Type *</label>
+          <input type="text" id="microscope-type" class="form-control" placeholder="compound, electron, confocal, etc." required />
+        </div>
+        <div class="form-group">
+          <label>Brand / Manufacturer</label>
+          <input type="text" id="microscope-brand" class="form-control" placeholder="Olympus, Nikon, Zeiss, etc." />
+        </div>
+        <div class="form-group">
+          <label>Operational Status *</label>
+          <select id="microscope-status" class="form-control" required>
+            <option value="available">available</option>
+            <option value="borrowed">borrowed</option>
+            <option value="maintenance">maintenance</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-microscope')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Microscope</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE LOAN -->
+  <div id="modal-loan" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Borrow Microscope (Create Loan)</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-loan')">✕</button>
+      </div>
+      <form id="form-loan">
+        <div class="form-group">
+          <label>Select Researcher *</label>
+          <select id="loan-researcher-select" class="form-control" required>
+            <option value="">Select researcher...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Select Available Microscope *</label>
+          <select id="loan-microscope-select" class="form-control" required>
+            <option value="">Select available microscope...</option>
+          </select>
+        </div>
+        <div style="background-color: var(--bg-primary); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          ℹ️ Initial status will automatically be assigned as <strong style="color: var(--pending-color)">pending</strong> (HTTP 201).
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-loan')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Loan Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

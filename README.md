@@ -142,17 +142,37 @@ Represents equipment checkout requests and transactions.
 
 ## Running the Application
 
-### Development Mode (with hot-reloading via Nodemon)
+### 1. Full-Stack Development Mode (API Server + Vite Frontend)
+Starts the Express API server on `http://localhost:3000` and the interactive Vite UI on `http://localhost:5173` simultaneously:
 ```bash
 npm run dev
 ```
 
-### Production Mode
+### 2. Run in Vite Only
+Launches the interactive Vite dashboard:
+```bash
+npm run vite
+```
+or:
+```bash
+npx vite
+```
+Open your browser at `http://localhost:5173`. (Ensure the backend server is running on port 3000 via `npm run server` or `npm start` to proxy API requests).
+
+### 3. Run Backend API Server Only
+```bash
+npm run server
+```
+or for production:
 ```bash
 npm start
 ```
-
 The server listens on `http://localhost:3000` by default (or the port defined in `process.env.PORT`).
+
+### 4. Build Vite Frontend for Production
+```bash
+npm run build
+```
 
 ---
 

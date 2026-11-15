@@ -23,6 +23,9 @@ yarn-error.log*
 # Testing
 coverage/
 
+# Production build
+dist/
+
 # OS and Editor files
 .DS_Store
 Thumbs.db

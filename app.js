@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const researcherRoutes = require('./routes/researcherRoutes');
 const microscopeRoutes = require('./routes/microscopeRoutes');
 const loanRoutes = require('./routes/loanRoutes');
@@ -7,6 +8,9 @@ const { sendSuccess, sendError } = require('./utils/response');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Enable CORS for cross-origin requests (e.g. Vite dev server on port 5173)
+app.use(cors());
 
 // Middleware for parsing JSON request bodies
 app.use(express.json());
