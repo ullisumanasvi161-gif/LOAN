@@ -1,0 +1,758 @@
+{
+  "info": {
+    "_postman_id": "a5e8f4c2-9012-4c28-98e3-0c4a4dfb8d21",
+    "name": "LabKit Central - API Collection",
+    "description": "Comprehensive Postman test collection for LabKit Central – Laboratory Equipment Loan Management System.\nCovers Module 1, Module 2, and Module 3 requirements including CRUD, SQL JOIN, Loan Status Workflow, and Request Validations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Welcome API",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Welcome message matches specification\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.message).to.eql(\"Welcome to LabKit Central API\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Root endpoint returning welcome message."
+      }
+    },
+    {
+      "name": "2. Get all researchers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Returns list of researchers\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(Array.isArray(jsonData.data)).to.be.true;",
+              "    pm.expect(jsonData.data.length).to.be.at.least(5);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/researchers",
+          "host": ["{{baseUrl}}"],
+          "path": ["researchers"]
+        },
+        "description": "Retrieve all registered researchers."
+      }
+    },
+    {
+      "name": "3. Get researcher by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Returns specific researcher details\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.id).to.eql(1);",
+              "    pm.expect(jsonData.data.name).to.be.a('string');",
+              "    pm.expect(jsonData.data.email).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/researchers/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["researchers", "1"]
+        },
+        "description": "Retrieve a single researcher by primary key ID."
+      }
+    },
+    {
+      "name": "4. Create researcher",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Researcher created with generated ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.id).to.be.a('number');",
+              "    pm.expect(jsonData.data.email).to.eql(\"rosalind.franklin@labkit.org\");",
+              "    pm.environment.set(\"created_researcher_id\", jsonData.data.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Dr. Rosalind Franklin\",\n  \"email\": \"rosalind.franklin@labkit.org\",\n  \"department\": \"Structural Crystallography\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/researchers",
+          "host": ["{{baseUrl}}"],
+          "path": ["researchers"]
+        },
+        "description": "Create a new researcher with valid name, unique email, and department."
+      }
+    },
+    {
+      "name": "5. Update researcher",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Researcher updated successfully\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.department).to.eql(\"Advanced Cellular Biology\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Dr. Elena Rostova\",\n  \"department\": \"Advanced Cellular Biology\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/researchers/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["researchers", "1"]
+        },
+        "description": "Update researcher details."
+      }
+    },
+    {
+      "name": "6. Delete researcher",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Researcher deleted message returned\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.message).to.include(\"deleted successfully\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/researchers/{{created_researcher_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["researchers", "{{created_researcher_id}}"]
+        },
+        "description": "Delete a researcher without active loan dependencies."
+      }
+    },
+    {
+      "name": "7. Get all microscopes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Returns at least 10 microscopes\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.length).to.be.at.least(10);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/microscopes",
+          "host": ["{{baseUrl}}"],
+          "path": ["microscopes"]
+        },
+        "description": "Retrieve all laboratory microscopes."
+      }
+    },
+    {
+      "name": "8. Get microscope by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Returns correct microscope properties\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.id).to.eql(1);",
+              "    pm.expect(jsonData.data).to.have.property('name');",
+              "    pm.expect(jsonData.data).to.have.property('type');",
+              "    pm.expect(jsonData.data).to.have.property('status');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/microscopes/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["microscopes", "1"]
+        },
+        "description": "Retrieve single microscope by ID."
+      }
+    },
+    {
+      "name": "9. Create microscope",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Microscope created successfully\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.id).to.be.a('number');",
+              "    pm.expect(jsonData.data.name).to.eql(\"Hitachi HT7800\");",
+              "    pm.environment.set(\"created_microscope_id\", jsonData.data.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Hitachi HT7800\",\n  \"type\": \"electron\",\n  \"brand\": \"Hitachi\",\n  \"status\": \"available\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/microscopes",
+          "host": ["{{baseUrl}}"],
+          "path": ["microscopes"]
+        },
+        "description": "Add a new microscope to the laboratory inventory."
+      }
+    },
+    {
+      "name": "10. Update microscope",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Microscope updated with new brand\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.brand).to.eql(\"Olympus Life Science\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"brand\": \"Olympus Life Science\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/microscopes/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["microscopes", "1"]
+        },
+        "description": "Update microscope details."
+      }
+    },
+    {
+      "name": "11. Delete microscope",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Microscope deleted confirmation\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.message).to.include(\"deleted successfully\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/microscopes/{{created_microscope_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["microscopes", "{{created_microscope_id}}"]
+        },
+        "description": "Delete a microscope that does not have existing loans."
+      }
+    },
+    {
+      "name": "12. Search microscopes by type",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"All returned microscopes have type compound\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    jsonData.data.forEach(function(m) {",
+              "        pm.expect(m.type.toLowerCase()).to.eql('compound');",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/microscopes?type=compound",
+          "host": ["{{baseUrl}}"],
+          "path": ["microscopes"],
+          "query": [
+            {
+              "key": "type",
+              "value": "compound"
+            }
+          ]
+        },
+        "description": "Parameterized search filter: search microscopes by type."
+      }
+    },
+    {
+      "name": "13. Search microscopes by status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"All returned microscopes have status available\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    jsonData.data.forEach(function(m) {",
+              "        pm.expect(m.status.toLowerCase()).to.eql('available');",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/microscopes?status=available",
+          "host": ["{{baseUrl}}"],
+          "path": ["microscopes"],
+          "query": [
+            {
+              "key": "status",
+              "value": "available"
+            }
+          ]
+        },
+        "description": "Parameterized search filter: search microscopes by availability status."
+      }
+    },
+    {
+      "name": "14. Get all loans",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Returns at least 5 loans\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.length).to.be.at.least(5);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/loans",
+          "host": ["{{baseUrl}}"],
+          "path": ["loans"]
+        },
+        "description": "Retrieve all loan records."
+      }
+    },
+    {
+      "name": "15. Create loan",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Loan created with initial status 'pending'\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.status).to.eql(\"pending\");",
+              "    pm.expect(jsonData.data.researcher_id).to.eql(1);",
+              "    pm.expect(jsonData.data.microscope_id).to.eql(8);",
+              "    pm.environment.set(\"created_loan_id\", jsonData.data.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"researcher_id\": 1,\n  \"microscope_id\": 8\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/loans",
+          "host": ["{{baseUrl}}"],
+          "path": ["loans"]
+        },
+        "description": "Create a new loan. Status automatically assigned as 'pending'. Microscope 8 must be available."
+      }
+    },
+    {
+      "name": "16. Get loan details using JOIN",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"JOIN details include researcher and microscope names\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.length).to.be.greaterThan(0);",
+              "    var record = jsonData.data[0];",
+              "    pm.expect(record).to.have.property(\"loan_id\");",
+              "    pm.expect(record).to.have.property(\"researcher_id\");",
+              "    pm.expect(record).to.have.property(\"researcher_name\");",
+              "    pm.expect(record).to.have.property(\"researcher_email\");",
+              "    pm.expect(record).to.have.property(\"microscope_id\");",
+              "    pm.expect(record).to.have.property(\"microscope_name\");",
+              "    pm.expect(record).to.have.property(\"microscope_type\");",
+              "    pm.expect(record).to.have.property(\"loan_date\");",
+              "    pm.expect(record).to.have.property(\"status\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/loans/details",
+          "host": ["{{baseUrl}}"],
+          "path": ["loans", "details"]
+        },
+        "description": "Retrieve comprehensive loan information using SQL INNER JOIN between Loans, Researchers, and Microscopes."
+      }
+    },
+    {
+      "name": "17. Change loan status from pending to approved",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Status successfully transitioned to approved\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.message).to.eql(\"Loan status updated successfully\");",
+              "    pm.expect(jsonData.data.status).to.eql(\"approved\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"approved\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/loans/6/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["loans", "6", "status"]
+        },
+        "description": "Workflow transition step 1: pending -> approved."
+      }
+    },
+    {
+      "name": "18. Change loan status from approved to done",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Status successfully transitioned to done\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.status).to.eql(\"done\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"done\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/loans/1/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["loans", "1", "status"]
+        },
+        "description": "Workflow transition step 2: approved -> done."
+      }
+    },
+    {
+      "name": "19. Test invalid status transition",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Response returns invalid status change error\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.message).to.eql(\"Invalid status change\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"pending\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/loans/1/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["loans", "1", "status"]
+        },
+        "description": "Enforce one-step-forward workflow: attempts illegal backward transition (approved -> pending). Expected HTTP 400."
+      }
+    },
+    {
+      "name": "20. Test invalid researcher or microscope ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Returns error for non-existent foreign key\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.message).to.match(/does not exist/i);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"researcher_id\": 99999,\n  \"microscope_id\": 1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/loans",
+          "host": ["{{baseUrl}}"],
+          "path": ["loans"]
+        },
+        "description": "Validation test: Attempting to create a loan with a non-existent researcher ID."
+      }
+    }
+  ]
+}

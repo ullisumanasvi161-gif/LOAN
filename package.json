@@ -1,0 +1,30 @@
+{
+  "name": "labkit-central",
+  "version": "1.0.0",
+  "description": "LabKit Central - Laboratory Equipment Loan Management System",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "seed": "node database/seed.js",
+    "test": "jest --runInBand --detectOpenHandles"
+  },
+  "keywords": [
+    "express",
+    "sqlite",
+    "equipment-management",
+    "rest-api",
+    "loan-management"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^13.2.0",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
+  }
+}
